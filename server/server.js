@@ -1,0 +1,46 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+require("dotenv").config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json({ limit: "10mb" }));
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+app.post("/query", async (req, res) => {
+  const { history, image } = req.body;
+
+  console.log("📩 History length:", history?.length);
+  console.log("🖼️ Image starts:", image?.slice(0, 30));
+
+  try {
+    const imagePart = {
+      inlineData: {
+        data: image.split(",")[1],
+        mimeType: "image/png"
+      }
+    };
+
+    const fullHistory = [
+      ...(history || []),
+      { role: "user", parts: [imagePart] }
+    ];
+
+    const result = await model.generateContent({ contents: fullHistory });
+    const response = await result.response;
+    const reply = response.text();
+
+    res.json({ reply });
+  } catch (err) {
+    console.error("❌ Gemini API Error:", err.message);
+    res.status(500).json({ reply: "❌ Failed to get response from Gemini." });
+  }
+});
+
+app.listen(3000, () => {
+  console.log("✅ Server running at http://localhost:3000");
+});
