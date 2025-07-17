@@ -114,7 +114,7 @@ async function speakSmartly(fullText) {
 
 async function sendToGemini(userText) {
   const imageBase64 = getCanvasImageBase64();
-
+ 
   try {
     const res = await fetch("http://localhost:3000/query", {
       method: "POST",
