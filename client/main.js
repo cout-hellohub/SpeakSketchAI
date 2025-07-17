@@ -2,13 +2,14 @@ const canvas = document.getElementById("whiteboard");
 const ctx = canvas.getContext("2d");
 let drawing = false;
 let erasing = false;
+
 const penBtn = document.getElementById("penBtn");
 const clearBtn = document.getElementById("clearBtn");
+const micBtn = document.getElementById("micBtn");
+const chatBox = document.getElementById("chatBox");
 
-let currentMode = "pen";
-const chatHistory = [];
-x
-// 🖼️ Offset fix for canvas drawing
+let recognition;
+
 function getCanvasCoords(e) {
   const rect = canvas.getBoundingClientRect();
   return {
@@ -31,37 +32,25 @@ canvas.addEventListener("mousemove", (e) => {
 
 penBtn.addEventListener("click", () => {
   erasing = !erasing;
-  penBtn.textContent = erasing ? "🖊️ Erase Mode" : "🖊️ Pen Mode";
+  penBtn.textContent = erasing ? "🧽 Erase Mode" : "🖊️ Pen Mode";
 });
 
 clearBtn.addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-const micBtn = document.getElementById("micBtn");
-const chatBox = document.getElementById("chatBox");
-
-let recognition;
 if ('webkitSpeechRecognition' in window) {
   recognition = new webkitSpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = false;
 
   recognition.onstart = () => {
-    console.log("🎙️ Listening...");
     micBtn.innerText = "🎤 Listening...";
   };
 
   recognition.onresult = (event) => {
     const transcript = event.results[event.results.length - 1][0].transcript.trim();
-    console.log("✅ Voice captured:", transcript);
     addChatMessage("You", transcript, "user");
-
-    chatHistory.push({
-      role: "user",
-      parts: [{ text: transcript }]
-    });
-
     micBtn.innerText = "⏳ Processing...";
     sendToGemini(transcript)
       .then(() => micBtn.innerText = "🎙️ Start Voice")
@@ -72,8 +61,6 @@ if ('webkitSpeechRecognition' in window) {
     console.error("Speech recognition error:", e);
     micBtn.innerText = "🎙️ Start Voice";
   };
-} else {
-  alert("Speech recognition not supported in your browser.");
 }
 
 micBtn.addEventListener("click", () => {
@@ -83,20 +70,6 @@ micBtn.addEventListener("click", () => {
     console.error("Recognition start error:", err);
   }
 });
-
-function addChatMessage(sender, text, className) {
-  const msg = document.createElement("div");
-  msg.className = className;
-  msg.innerHTML = `<b>${sender}:</b> ${text}`;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function speak(text) {
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  speechSynthesis.speak(utter);
-}
 
 function getCanvasImageBase64() {
   const tempCanvas = document.createElement("canvas");
@@ -111,6 +84,34 @@ function getCanvasImageBase64() {
   return tempCanvas.toDataURL("image/png");
 }
 
+function addChatMessage(sender, text, className) {
+  const msg = document.createElement("div");
+  msg.className = className;
+
+  const formatted = marked.parse(text); // Markdown parser
+  msg.innerHTML = `<b>${sender}:</b> ${formatted}`;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function speakSmartly(fullText) {
+  try {
+    const res = await fetch("http://localhost:3000/tts-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullText })
+    });
+    const data = await res.json();
+    const summary = data.speechText;
+
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(summary);
+    speechSynthesis.speak(utter);
+  } catch (err) {
+    console.error("❌ TTS Summary Error:", err);
+  }
+}
+
 async function sendToGemini(userText) {
   const imageBase64 = getCanvasImageBase64();
 
@@ -119,7 +120,7 @@ async function sendToGemini(userText) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        history: chatHistory,
+        message: userText,
         image: imageBase64
       })
     });
@@ -128,16 +129,10 @@ async function sendToGemini(userText) {
 
     const data = await res.json();
     const botText = data.reply;
-
-    chatHistory.push({
-      role: "model",
-      parts: [{ text: botText }]
-    });
-
     addChatMessage("Bot", botText, "bot");
-    speak(botText);
+    speakSmartly(botText);
   } catch (err) {
     console.error("❌ API error:", err);
-    addChatMessage("Bot", "❌ Oops! Failed to process your request.", "bot");
+    addChatMessage("Bot", "❌ Failed to process your request.", "bot");
   }
 }
