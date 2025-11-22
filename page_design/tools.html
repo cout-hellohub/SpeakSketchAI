@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKEARTCH ai | Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #fullscreen-noti {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in;
+            z-index: 1000;
+        }
+
+        #fullscreen-noti.show {
+            opacity: 1;
+        }
+
+        /* .logo{
+            transition: transform 0.1s ease-in-out;
+        }
+        .logo:hover{
+            transform: scale(1.05);
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="demo-container" id="grid"></div>
+
+    <header>
+        <div class="logo-group">
+            <button class="back-btn" onclick="history.back()">
+                &#10094;
+            </button>
+            <div class="logo">
+                <a href="index.html">SKEARTCH ai</a>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="tools-container">
+        <section class="tool-card">
+            <div class="tool-header">
+                <img src="icons/creative.png" class="icon">
+                <span class="tool-title">creative mode</span>
+            </div>
+            <p>
+                Turn your sketches into stories. Upload a hand-drawn sketch or vector artwork, add your prompt, and
+                watch it come to life. Whether you're illustrating ideas or imagining scenes, this tool transforms your
+                visuals into creative outputs driven by your words.
+            </p>
+            <a href="creative_explore.html">
+                <button class="explore-btn">Let's Go!</button>
+            </a>
+
+        </section>
+        <section class="tool-card">
+            <div class="tool-header">
+                <img src="icons/education.png" class="icon">
+                <span class="tool-title">education mode</span>
+            </div>
+            <p>
+                Sketch. Prompt. Learn.<br>Designed for students and educators, this tool converts your diagrams or
+                formulas into contextual explanations. Upload a sketch or vector, enter your formula in the input box,
+                and receive tailored educational content that bridges visuals with concepts.
+            </p>
+            <a href="education_explore.html">
+                <button class="explore-btn">Let's Go!</button>
+            </a>
+        </section>
+    </main>
+
+    <div id="fullscreen-noti">
+        Change the screen to Full-screen mode for better experience. Press F11 to convert.
+    </div>
+
+    <script>
+        const container = document.getElementById("grid");
+        const notification = document.getElementById("fullscreen-noti");
+        const squareSize = 40;
+
+        function checkAndShowNotification() {
+            if (sessionStorage.getItem('showFullscreenNoti') === 'true') {
+                notification.classList.add("show");
+
+                sessionStorage.removeItem('showFullscreenNoti');
+
+                setTimeout(() => {
+                    notification.classList.remove("show");
+                }, 5000);
+            }
+        }
+
+        function generateGrid() {
+            container.innerHTML = "";
+
+            const totalCols = Math.floor(window.innerWidth / squareSize);
+            const totalRows = Math.floor(window.innerHeight / squareSize);
+
+            container.style.gridTemplateColumns = `repeat(${totalCols}, ${squareSize}px)`;
+
+            for (let i = 0; i < totalCols * totalRows; i++) {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                container.appendChild(square);
+            }
+        }
+        generateGrid();
+
+        // Call the notification check function after the page is loaded
+        checkAndShowNotification();
+
+        window.addEventListener("resize", generateGrid);
+
+        function randomHighlight() {
+            const squares = document.querySelectorAll(".square");
+            if (squares.length === 0) return;
+
+            const count = Math.floor(Math.random() * 5) + 2;
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * squares.length);
+                const square = squares[randomIndex];
+
+                square.classList.add("highlight");
+
+                setTimeout(() => {
+                    square.classList.remove("highlight");
+                }, Math.random() * 1500 + 500);
+            }
+        }
+
+        setInterval(randomHighlight, 500);
+    </script>
+
+</body>
+
+</html>

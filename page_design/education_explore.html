@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education mode</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @font-face {
+            font-family: logo-font;
+            src: url("fonts/PressStart2P.ttf") format("truetype");
+        }
+
+        main-canvas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 10px;
+            width: 85%;
+            height: 70vh;
+            margin: 0 auto;
+        }
+
+        .education-left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .canvas-box {
+            border: 2px solid #666666;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 7px 7px;
+        }
+
+        .canvas {
+            flex: 1;
+            background: #dadada;
+            border-radius: 2px;
+        }
+
+        .canvas-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            border-top: 1px solid #aaa;
+            background: #fff;
+        }
+
+        .canvas-footer .tools {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .canvas-footer .tools button {
+            width: 40px;
+            height: 40px;
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.05s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .canvas-footer .tools button:hover {
+            background-color: #000000;
+        }
+
+        .canvas-footer .tools button:hover img {
+            filter: invert(1);
+        }
+
+        .canvas-footer .tools button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .canvas-footer .tools button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .keyboard-footer .tools {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .output-box {
+            border: 2px solid #666666;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-bottom: 10px;
+            background-color: #e8e8e8;
+        }
+
+        .output-box h3 {
+            margin: 0;
+            padding: 5px 7px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #e8e8e8;
+        }
+
+        .output-box textarea {
+            flex: 1;
+            border: 2px solid #a0a0a0;
+            border-radius: 3px;
+            resize: none;
+            font-family: monospace;
+            font-size: 16px;
+            outline: none;
+            padding: 10px 10px;
+        }
+
+        .prompt-row {
+            width: 85%;
+            margin: 15px auto 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prompt-box {
+            flex-grow: 1;
+            height: 100px;
+            padding: 15px;
+            border: 2px solid #666;
+            border-radius: 5px;
+            font-size: 18px;
+            resize: none;
+            background-color: #1a1a1a;
+            color: #eee;
+            font-family: monospace;
+            outline: none;
+        }
+
+        .prompt-box::placeholder {
+            color: #888;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action {
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 6px;
+            background: #f1f1f1;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.12s ease-in-out;
+        }
+
+        .action:hover {
+            background: #000000;
+        }
+
+        .action:hover img {
+            filter: invert(1);
+        }
+
+        .action:active {
+            transform: translateY(2px) scaleX(1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .action img {
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+        }
+
+        .mic {
+            width: 90px;
+            height: 90px;
+            border: none;
+            border-radius: 10px;
+            background: #f1f1f1;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.12s ease, background 0.14s ease;
+        }
+
+        .mic img {
+            width: 48px;
+            height: 48px;
+            pointer-events: none;
+            transition: filter 0.25s ease;
+        }
+
+        .mic:hover {
+            background: #000000;
+        }
+
+        .mic:hover img {
+            filter: invert(1);
+        }
+
+        .mic.active {
+            transform: scale(1.1);
+            background: #d32f2f;
+        }
+
+        .mic.active img {
+            filter: invert(1);
+            animation: pulseOpacity 1s infinite ease-in-out;
+        }
+
+        @keyframes pulseOpacity {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.2;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .prompt-row>textarea {
+            align-self: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container" id="grid"></div>
+
+    <header>
+        <div class="logo-group">
+            <button class="back-btn" onclick="history.back()">
+                &#10094;
+            </button>
+            <div class="logo">
+                <a href="index.html">SKEARTCH ai</a><span>/ e d u c a t i o n</span>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main-canvas>
+
+        <div class="education-left-panel">
+            <div class="canvas-box" style="flex: 1;">
+                <canvas id="whiteboard" class="canvas"></canvas>
+                <div class="canvas-footer">
+                    <div class="tools">
+                        <button id="clearBtn">
+                            <img src="icons/clear_all_btn.png">
+                        </button>
+                        <button id="penBtn">
+                            <img src="icons/pencil_mode.png">
+                        </button>
+                        <button id="eraserBtn">
+                            <img src="icons/eraser_mode.png">
+                        </button>
+                        <button disabled>
+                            <img src="icons/undo.png">
+                        </button>
+                        <button disabled>
+                            <img src="icons/redo.png">
+                        </button>
+                    </div>
+                    <div><span style="font-size: 17px; font-family: 'logo-font';">SKEARTCH ai</span><br><span
+                            style="opacity: 0.3">c a n v a s</span></div>
+                </div>
+            </div>
+
+            <div class="canvas-box" style="flex: 0.5;">
+                <div class="canvas"
+                    style="background: #ffffff; border: 2px dashed #a0a0a0; display: flex; align-items: center; justify-content: center; color: #a0a0a0; font-size: 18px;">
+                    Scientific Keyboard Placeholder
+                </div>
+
+            </div>
+        </div>
+
+        <div class="output-box">
+            <h3>output</h3>
+            <textarea id="chatBox" readonly>
+YOU : Hello tutor!
+
+TUTOR : Hello Student! Let's learn something.
+</textarea>
+        </div>
+
+    </main-canvas>
+
+    <div class="prompt-row">
+        <textarea class="prompt-box" id="promptBox" placeholder="enter your prompt here..."></textarea>
+
+        <div class="action-buttons">
+            <div class="btn-col">
+                <button class="action submit" id="submitBtn">
+                    <img src="icons/upload.png" alt="Submit">
+                </button>
+
+                <button class="action clear" id="clearPromptBtn">
+                    <img src="icons/clear_all_btn.png" alt="Clear">
+                </button>
+            </div>
+
+            <button class="mic" id="mic-btn" aria-label="Mic">
+                <img src="icons/mic.png" alt="mic">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const micBtn = document.getElementById("mic-btn");
+
+        micBtn.addEventListener("click", () => {
+            micBtn.classList.toggle("active");
+
+            if (micBtn.classList.contains("active")) {
+                console.log("Recording started...");
+            }
+            else {
+                console.log("Recoding stopped...");
+            }
+        });
+
+
+        const container = document.getElementById("grid");
+        const squareSize = 40;
+
+        function generateGrid() {
+            container.innerHTML = "";
+
+            const totalCols = Math.floor(window.innerWidth / squareSize);
+            const totalRows = Math.floor(window.innerHeight / squareSize);
+
+            container.style.gridTemplateColumns = `repeat(${totalCols}, ${squareSize}px)`;
+
+            for (let i = 0; i < totalCols * totalRows; i++) {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                container.appendChild(square);
+            }
+        }
+        generateGrid();
+
+        window.addEventListener("resize", generateGrid);
+
+        function randomHighlight() {
+            const squares = document.querySelectorAll(".square");
+            if (squares.length === 0) return;
+
+            const count = Math.floor(Math.random() * 5) + 2;
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * squares.length);
+                const square = squares[randomIndex];
+
+                square.classList.add("highlight");
+
+                setTimeout(() => {
+                    square.classList.remove("highlight");
+                }, Math.random() * 1500 + 500);
+            }
+        }
+
+        setInterval(randomHighlight, 500);
+    </script>
+</body>
+
+</html>

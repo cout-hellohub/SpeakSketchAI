@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKEARTCH ai | Contact Us</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div class="demo-container" id="grid"></div>
+
+    <header>
+        <div class="logo-group">
+            <button class="back-btn" onclick="history.back()">
+                &#10094;
+            </button>
+            <div class="logo">
+                <a href="index.html">SKEARTCH ai</a>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <script>
+        const container = document.getElementById("grid");
+        const squareSize = 40;
+
+        function generateGrid() {
+            container.innerHTML = "";
+
+            const totalCols = Math.floor(window.innerWidth / squareSize);
+            const totalRows = Math.floor(window.innerHeight / squareSize);
+
+            container.style.gridTemplateColumns = `repeat(${totalCols}, ${squareSize}px)`;
+
+            for (let i = 0; i < totalCols * totalRows; i++) {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                container.appendChild(square);
+            }
+        }
+        generateGrid();
+
+        window.addEventListener("resize", generateGrid);
+
+        function randomHighlight() {
+            const squares = document.querySelectorAll(".square");
+            if (squares.length === 0) return;
+
+            const count = Math.floor(Math.random() * 5) + 2;
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * squares.length);
+                const square = squares[randomIndex];
+
+                square.classList.add("highlight");
+
+                setTimeout(() => {
+                    square.classList.remove("highlight");
+                }, Math.random() * 1500 + 500);
+            }
+        }
+
+        setInterval(randomHighlight, 500);
+    </script>
+
+
+</body>
+
+</html>
