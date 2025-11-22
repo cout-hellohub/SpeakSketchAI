@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakSketchAI - Connection Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-name {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .test-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .status-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+        
+        .log-line {
+            margin-bottom: 5px;
+        }
+        
+        .log-error {
+            color: #ff6b6b;
+        }
+        
+        .log-success {
+            color: #51cf66;
+        }
+        
+        .log-info {
+            color: #74c0fc;
+        }
+        
+        .links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 SpeakSketchAI</h1>
+        <p class="subtitle">System Integration Test</p>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <span class="test-name">Backend Server</span>
+                <span class="test-status status-pending" id="status-backend">Pending</span>
+            </div>
+            <div class="test-item">
+                <span class="test-name">Gemini AI API</span>
+                <span class="test-status status-pending" id="status-ai">Pending</span>
+            </div>
+            <div class="test-item">
+                <span class="test-name">TTS Summary</span>
+                <span class="test-status status-pending" id="status-tts">Pending</span>
+            </div>
+            <div class="test-item">
+                <span class="test-name">Speech Recognition</span>
+                <span class="test-status status-pending" id="status-speech">Pending</span>
+            </div>
+            <div class="test-item">
+                <span class="test-name">Canvas Drawing</span>
+                <span class="test-status status-pending" id="status-canvas">Pending</span>
+            </div>
+        </div>
+        
+        <button id="testBtn" onclick="runTests()">🚀 Run Integration Tests</button>
+        
+        <div class="log" id="log"></div>
+        
+        <div class="links">
+            <a href="frontend/index.html">🏠 Home</a>
+            <a href="frontend/tools.html">🛠️ Tools</a>
+            <a href="frontend/creative_explore.html">🎨 Creative Mode</a>
+            <a href="frontend/education_explore.html">📚 Education Mode</a>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+        let testResults = [];
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const line = document.createElement('div');
+            line.className = `log-line log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            line.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStatus(testId, status) {
+            const statusEl = document.getElementById(`status-${testId}`);
+            statusEl.className = `test-status status-${status}`;
+            statusEl.textContent = status === 'success' ? 'Pass' : status === 'error' ? 'Fail' : 'Testing';
+        }
+        
+        async function testBackend() {
+            log('Testing backend server connection...', 'info');
+            updateStatus('backend', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'test', image: null })
+                });
+                
+                if (response.ok) {
+                    log('✓ Backend server is running', 'success');
+                    updateStatus('backend', 'success');
+                    return true;
+                } else {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+            } catch (err) {
+                log(`✗ Backend server error: ${err.message}`, 'error');
+                updateStatus('backend', 'error');
+                return false;
+            }
+        }
+        
+        async function testAI() {
+            log('Testing Gemini AI API...', 'info');
+            updateStatus('ai', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: 'Say "Hello" if you can hear me!',
+                        image: null 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.reply) {
+                    log(`✓ AI responded: "${data.reply.substring(0, 50)}..."`, 'success');
+                    updateStatus('ai', 'success');
+                    return true;
+                } else {
+                    throw new Error('No reply from AI');
+                }
+            } catch (err) {
+                log(`✗ AI API error: ${err.message}`, 'error');
+                updateStatus('ai', 'error');
+                return false;
+            }
+        }
+        
+        async function testTTS() {
+            log('Testing TTS summary endpoint...', 'info');
+            updateStatus('tts', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/tts-summary`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        fullText: 'This is a test message for text-to-speech functionality.'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.speechText) {
+                    log(`✓ TTS summary: "${data.speechText}"`, 'success');
+                    updateStatus('tts', 'success');
+                    return true;
+                } else {
+                    throw new Error('No speech text returned');
+                }
+            } catch (err) {
+                log(`✗ TTS error: ${err.message}`, 'error');
+                updateStatus('tts', 'error');
+                return false;
+            }
+        }
+        
+        function testSpeechRecognition() {
+            log('Testing speech recognition support...', 'info');
+            updateStatus('speech', 'pending');
+            
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                log('✓ Speech recognition is supported', 'success');
+                updateStatus('speech', 'success');
+                return true;
+            } else {
+                log('✗ Speech recognition not supported in this browser', 'error');
+                log('  (Use Chrome or Edge for full support)', 'info');
+                updateStatus('speech', 'error');
+                return false;
+            }
+        }
+        
+        function testCanvas() {
+            log('Testing canvas drawing capabilities...', 'info');
+            updateStatus('canvas', 'pending');
+            
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                if (ctx) {
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(0, 0, 50, 50);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    if (dataUrl.startsWith('data:image/png')) {
+                        log('✓ Canvas drawing and export working', 'success');
+                        updateStatus('canvas', 'success');
+                        return true;
+                    }
+                }
+                throw new Error('Canvas test failed');
+            } catch (err) {
+                log(`✗ Canvas error: ${err.message}`, 'error');
+                updateStatus('canvas', 'error');
+                return false;
+            }
+        }
+        
+        async function runTests() {
+            const btn = document.getElementById('testBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Running Tests...';
+            
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML = '';
+            
+            log('Starting integration tests...', 'info');
+            log('', 'info');
+            
+            // Run tests
+            const backendOk = await testBackend();
+            await new Promise(r => setTimeout(r, 500));
+            
+            const aiOk = backendOk ? await testAI() : false;
+            await new Promise(r => setTimeout(r, 500));
+            
+            const ttsOk = backendOk ? await testTTS() : false;
+            await new Promise(r => setTimeout(r, 500));
+            
+            const speechOk = testSpeechRecognition();
+            await new Promise(r => setTimeout(r, 500));
+            
+            const canvasOk = testCanvas();
+            
+            // Summary
+            log('', 'info');
+            log('========================================', 'info');
+            const passed = [backendOk, aiOk, ttsOk, speechOk, canvasOk].filter(Boolean).length;
+            const total = 5;
+            
+            if (passed === total) {
+                log(`✓ All tests passed (${passed}/${total})`, 'success');
+                log('System is ready to use! 🎉', 'success');
+            } else {
+                log(`⚠ ${passed}/${total} tests passed`, 'info');
+                
+                if (!backendOk) {
+                    log('', 'info');
+                    log('Backend server is not running!', 'error');
+                    log('Start it with: cd backend && node server.js', 'info');
+                }
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔄 Run Tests Again';
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>

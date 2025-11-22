@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Education mode</title>
+    <title>Creative mode</title>
     <link rel="stylesheet" href="style.css">
     <style>
         @font-face {
@@ -20,12 +20,7 @@
             width: 85%;
             height: 70vh;
             margin: 0 auto;
-        }
 
-        .education-left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
         .canvas-box {
@@ -56,10 +51,9 @@
         .canvas-footer .tools {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
-        .canvas-footer .tools button {
+        .tools button {
             width: 40px;
             height: 40px;
             padding: 5px;
@@ -69,33 +63,25 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             transition: all 0.05s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .canvas-footer .tools button:hover {
+        .tools button:hover {
             background-color: #000000;
         }
 
-        .canvas-footer .tools button:hover img {
+        .tools button:hover img {
             filter: invert(1);
         }
 
-        .canvas-footer .tools button:active {
+        .tools button:active {
             transform: translateY(3px);
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
         }
 
-        .canvas-footer .tools button img {
+        .tools button img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-        }
-
-        .keyboard-footer .tools {
-            visibility: hidden;
-            pointer-events: none;
         }
 
         .output-box {
@@ -132,6 +118,7 @@
             width: 85%;
             margin: 15px auto 0 auto;
             display: flex;
+            /* FIX: Align items vertically centered to fix misalignment */
             align-items: center;
             gap: 15px;
         }
@@ -199,6 +186,7 @@
             pointer-events: none;
         }
 
+        /* Full Mic Button Styling */
         .mic {
             width: 90px;
             height: 90px;
@@ -259,6 +247,7 @@
 </head>
 
 <body>
+
     <div class="demo-container" id="grid"></div>
 
     <header>
@@ -267,7 +256,7 @@
                 &#10094;
             </button>
             <div class="logo">
-                <a href="index.html">SKEARTCH ai</a><span>/ e d u c a t i o n</span>
+                <a href="index.html">SKEARTCH ai</a> <span>/ c r e a t i v e</span>
             </div>
         </div>
 
@@ -282,62 +271,55 @@
 
     <main-canvas>
 
-        <div class="education-left-panel">
-            <div class="canvas-box" style="flex: 1;">
-                <canvas id="whiteboard" class="canvas"></canvas>
-                <div class="canvas-footer">
-                    <div class="tools">
-                        <button id="clearBtn">
-                            <img src="icons/clear_all_btn.png">
-                        </button>
-                        <button id="penBtn">
-                            <img src="icons/pencil_mode.png">
-                        </button>
-                        <button id="eraserBtn">
-                            <img src="icons/eraser_mode.png">
-                        </button>
-                        <button disabled>
-                            <img src="icons/undo.png">
-                        </button>
-                        <button disabled>
-                            <img src="icons/redo.png">
-                        </button>
-                    </div>
-                    <div><span style="font-size: 17px; font-family: 'logo-font';">SKEARTCH ai</span><br><span
-                            style="opacity: 0.3">c a n v a s</span></div>
+        <div class="canvas-box">
+            <div class="canvas"></div>
+            <div class="canvas-footer">
+                <div class="tools">
+                    <button>
+                        <img src="icons/clear_all_btn.png">
+                    </button>
+                    <button>
+                        <img src="icons/pencil_mode.png">
+                    </button>
+                    <button>
+                        <img src="icons/eraser_mode.png">
+                    </button>
+                    <button>
+                        <img src="icons/undo.png">
+                    </button>
+                    <button>
+                        <img src="icons/redo.png">
+                    </button>
                 </div>
-            </div>
-
-            <div class="canvas-box" style="flex: 0.5;">
-                <div class="canvas"
-                    style="background: #ffffff; border: 2px dashed #a0a0a0; display: flex; align-items: center; justify-content: center; color: #a0a0a0; font-size: 18px;">
-                    Scientific Keyboard Placeholder
-                </div>
-
+                <div><span style="font-size: 17px; font-family: 'logo-font';">SKEARTCH ai</span><br><span
+                        style="opacity: 0.3" ;>c a n v a s</span></div>
             </div>
         </div>
 
         <div class="output-box">
             <h3>output</h3>
-            <textarea id="chatBox" readonly>
+            <!--response-text-here-->
+            <textarea readonly>
 YOU : Hello tutor!
 
 TUTOR : Hello Student! Let's learn something.
 </textarea>
         </div>
 
+
     </main-canvas>
 
+
     <div class="prompt-row">
-        <textarea class="prompt-box" id="promptBox" placeholder="enter your prompt here..."></textarea>
+        <textarea class="prompt-box" placeholder="enter your prompt here..."></textarea>
 
         <div class="action-buttons">
             <div class="btn-col">
-                <button class="action submit" id="submitBtn">
+                <button class="action submit">
                     <img src="icons/upload.png" alt="Submit">
                 </button>
 
-                <button class="action clear" id="clearPromptBtn">
+                <button class="action clear">
                     <img src="icons/clear_all_btn.png" alt="Clear">
                 </button>
             </div>
@@ -347,6 +329,7 @@ TUTOR : Hello Student! Let's learn something.
             </button>
         </div>
     </div>
+
 
     <script>
         const micBtn = document.getElementById("mic-btn");
@@ -402,7 +385,11 @@ TUTOR : Hello Student! Let's learn something.
         }
 
         setInterval(randomHighlight, 500);
+
     </script>
+
+    <script src="creative_explore.js"></script>
+
 </body>
 
 </html>
