@@ -299,7 +299,7 @@
         <div class="output-box">
             <h3>output</h3>
             <!--response-text-here-->
-            <textarea readonly>
+            <textarea id="outputBox" readonly>
 YOU : Hello tutor!
 
 TUTOR : Hello Student! Let's learn something.
@@ -311,15 +311,15 @@ TUTOR : Hello Student! Let's learn something.
 
 
     <div class="prompt-row">
-        <textarea class="prompt-box" placeholder="enter your prompt here..."></textarea>
+        <textarea class="prompt-box" id="promptBox" placeholder="enter your prompt here..."></textarea>
 
         <div class="action-buttons">
             <div class="btn-col">
-                <button class="action submit">
+                <button class="action submit" id="submitBtn">
                     <img src="icons/upload.png" alt="Submit">
                 </button>
 
-                <button class="action clear">
+                <button class="action clear" id="clearPromptBtn">
                     <img src="icons/clear_all_btn.png" alt="Clear">
                 </button>
             </div>

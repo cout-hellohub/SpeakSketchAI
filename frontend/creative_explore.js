@@ -33,11 +33,11 @@ const undoBtn = toolButtons[3];
 const redoBtn = toolButtons[4];
 
 // Output elements
-const outputTextarea = document.querySelector('.output-box textarea');
-const promptBox = document.querySelector('.prompt-box');
-const submitBtn = document.querySelector('.action.submit');
-const clearPromptBtn = document.querySelector('.action.clear');
-const micBtn = document.querySelector('.mic');
+const outputTextarea = document.getElementById('outputBox');
+const promptBox = document.getElementById('promptBox');
+const submitBtn = document.getElementById('submitBtn');
+const clearPromptBtn = document.getElementById('clearPromptBtn');
+const micBtn = document.getElementById('mic-btn');
 
 // Speech recognition
 let recognition;
