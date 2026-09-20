@@ -25,7 +25,7 @@ Start the backend server (serves the frontend statically):
 ```powershell
 cd e:\PROJECT\WEB\SpeakSketchAI
 npm start
-# then open http://localhost:3000/creative_explore.html
+# then open http://localhost:3000
 ```
 
 Development
@@ -37,5 +37,4 @@ npm run dev
 ```
 
 Notes
-- The app stores a persistent `sessionId` in browser `localStorage` to keep conversation history on the backend.
-- Do not commit `backend/.env` or your API key.
+- This app stores a persistent `sessionId` in browser `localStorage` to keep conversation history on the backend.
