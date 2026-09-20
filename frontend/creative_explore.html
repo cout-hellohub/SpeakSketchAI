@@ -15,10 +15,12 @@
         main-canvas {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            grid-template-rows: minmax(0, 1fr);
             gap: 15px;
             padding: 10px;
             width: 85%;
-            height: 70vh;
+            height: clamp(420px, 70vh, 720px);
+            box-sizing: border-box;
             margin: 0 auto;
 
         }
@@ -31,12 +33,16 @@
             justify-content: space-between;
             background: #ffffff;
             padding: 7px 7px;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .canvas {
             flex: 1;
             background: #dadada;
             border-radius: 2px;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .canvas-footer {
@@ -93,6 +99,8 @@
             padding-right: 10px;
             padding-bottom: 10px;
             background-color: #e8e8e8;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .output-box h3 {
@@ -103,7 +111,8 @@
             background-color: #e8e8e8;
         }
 
-        .output-box textarea {
+        .output-box textarea,
+        .output-box .output-content {
             flex: 1;
             border: 2px solid #a0a0a0;
             border-radius: 3px;
@@ -112,6 +121,132 @@
             font-size: 16px;
             outline: none;
             padding: 10px 10px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .output-box .output-content {
+            background: #fff;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .chat-message {
+            margin-bottom: 18px;
+        }
+
+        .chat-message:last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-sender {
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            letter-spacing: 0.04em;
+        }
+
+        .chat-content > :first-child {
+            margin-top: 0;
+        }
+
+        .chat-content > :last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-content h1,
+        .chat-content h2,
+        .chat-content h3,
+        .chat-content h4,
+        .chat-content h5,
+        .chat-content h6 {
+            line-height: 1.25;
+            margin: 16px 0 8px;
+        }
+
+        .chat-content p,
+        .chat-content ul,
+        .chat-content ol,
+        .chat-content blockquote,
+        .chat-content pre,
+        .chat-content table,
+        .chat-content hr {
+            margin: 10px 0;
+        }
+
+        .chat-content ul,
+        .chat-content ol {
+            padding-left: 24px;
+        }
+
+        .chat-content blockquote {
+            border-left: 4px solid #888;
+            padding: 4px 12px;
+            color: #444;
+            background: #f4f4f4;
+        }
+
+        .chat-content code {
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: #ececec;
+            font-family: Consolas, monospace;
+        }
+
+        .chat-content pre {
+            position: relative;
+            overflow-x: auto;
+            padding: 12px;
+            border-radius: 4px;
+            background: #202124;
+            color: #f5f5f5;
+        }
+
+        .chat-content pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+        }
+
+        .chat-content .code-language {
+            display: block;
+            margin: -4px 0 8px;
+            color: #b8c1cc;
+            font-size: 12px;
+            text-transform: lowercase;
+        }
+
+        .chat-content table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+        }
+
+        .chat-content th,
+        .chat-content td {
+            padding: 6px 9px;
+            border: 1px solid #aaa;
+            text-align: left;
+        }
+
+        .chat-content th {
+            background: #e8e8e8;
+        }
+
+        .chat-content a {
+            color: #0645ad;
+            overflow-wrap: anywhere;
+        }
+
+        .chat-content .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 0;
+        }
+
+        .chat-content .katex {
+            font-size: 1.05em;
         }
 
         .prompt-row {
@@ -275,19 +410,19 @@
             <div class="canvas"></div>
             <div class="canvas-footer">
                 <div class="tools">
-                    <button>
+                    <button type="button" aria-label="Clear canvas">
                         <img src="icons/clear_all_btn.png">
                     </button>
-                    <button>
+                    <button type="button" aria-label="Use pen">
                         <img src="icons/pencil_mode.png">
                     </button>
-                    <button>
+                    <button type="button" aria-label="Use eraser">
                         <img src="icons/eraser_mode.png">
                     </button>
-                    <button>
+                    <button type="button" aria-label="Undo">
                         <img src="icons/undo.png">
                     </button>
-                    <button>
+                    <button type="button" aria-label="Redo">
                         <img src="icons/redo.png">
                     </button>
                 </div>
@@ -299,11 +434,7 @@
         <div class="output-box">
             <h3>output</h3>
             <!--response-text-here-->
-            <textarea id="outputBox" readonly>
-YOU : Hello tutor!
-
-TUTOR : Hello Student! Let's learn something.
-</textarea>
+            <div id="outputBox" class="output-content" role="log" aria-live="polite"></div>
         </div>
 
 
@@ -332,20 +463,6 @@ TUTOR : Hello Student! Let's learn something.
 
 
     <script>
-        const micBtn = document.getElementById("mic-btn");
-
-        micBtn.addEventListener("click", () => {
-            micBtn.classList.toggle("active");
-
-            if (micBtn.classList.contains("active")) {
-                console.log("Recording started...");
-            }
-            else {
-                console.log("Recoding stopped...");
-            }
-        });
-
-
         const container = document.getElementById("grid");
         const squareSize = 40;
 
@@ -388,6 +505,13 @@ TUTOR : Hello Student! Let's learn something.
 
     </script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
     <script src="creative_explore.js"></script>
 
 </body>

@@ -7,14 +7,21 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["ai", "gemini", "canvas", "education", "creative"],
+  "keywords": [
+    "ai",
+    "gemini",
+    "canvas",
+    "education",
+    "creative"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@google/genai": "^2.3.0",
     "@google/generative-ai": "^0.24.1",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0"
   },
   "devDependencies": {
